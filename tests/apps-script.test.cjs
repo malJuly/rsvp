@@ -366,7 +366,7 @@ const ov = r.data;
 t('overview: never returns admin_key', r.status && !JSON.stringify(r).includes(KEY));
 const ga = ov.guests.find(g => g.id === gidA), gb = ov.guests.find(g => g.id === gidB);
 t('overview: personal link built from site_url', ga.link === 'https://example.pages.dev/?id=' + gidA, ga.link);
-t('overview: WhatsApp link to the phone with the filled message', ga.whatsappUrl.startsWith('https://wa.me/60123456789?text=') && decodeURIComponent(ga.whatsappUrl.split('text=')[1]) === "Dear Dato' Ashok, Garden Dinner 10 December 2026 https://example.pages.dev/?id=" + gidA, ga.whatsappUrl);
+t('overview: WhatsApp link to the phone with the filled message', ga.whatsappUrl.startsWith('https://wa.me/60123456789?text=') && decodeURIComponent(ga.whatsappUrl.split('text=')[1]) === "Dear Dato' Ashok, Garden Dinner 10th December 2026 https://example.pages.dev/?id=" + gidA, ga.whatsappUrl);
 t('overview: no phone -> WhatsApp lets you pick the contact', gb.whatsappUrl.startsWith('https://wa.me/?text='), gb.whatsappUrl);
 t('overview: statuses', ga.status === 'replied' && ga.reply.attending === 'yes' && ga.reply.pax === 2 && gb.status === 'not_opened' && /^\d{4}-/.test(ga.firstOpened), [ga, gb]);
 t('overview: summary counts', JSON.stringify(ov.summary) === JSON.stringify({ invited: 2, replied: 1, notOpened: 1, attendingReplies: 2, declinedReplies: 1, peopleComing: 5, sharedReplies: 2 }), ov.summary);
@@ -417,6 +417,13 @@ t('lockout: even the right key is refused while locked', admin(h, { op: 'login',
 delete h.ctx.__cache.admin_locked;
 t('lockout: after it expires the right key works', admin(h, { op: 'login', key: KEY }).status === true);
 t('public RSVP still works next to admin', post(h, { action: 'rsvp', name: 'Still OK', attending: 'no' }).status === true);
+
+// --- ordinal dates (WhatsApp {deadline})
+h = build();
+t('ordinal_: st, nd, rd, th and the 11th to 13th', [1, 2, 3, 4, 11, 12, 13, 21, 22, 23, 24, 30, 31].map(n => h.run('ordinal_(' + n + ')')).join() === '1st,2nd,3rd,4th,11th,12th,13th,21st,22nd,23rd,24th,30th,31st');
+t('longDate_ uses ordinals', h.run("longDate_('2026-11-06')") === '6th November 2026' && h.run("longDate_('2026-11-22')") === '22nd November 2026');
+h.run('generateIds()');
+t('Sheet WhatsApp formula writes the deadline with an ordinal', /CHOOSE\(MOD\(DAY\(/.test(String(h.sheets.Guests.rows[1][5])) && !/d mmmm yyyy/.test(String(h.sheets.Guests.rows[1][5])), h.sheets.Guests.rows[1][5]);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

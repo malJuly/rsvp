@@ -210,13 +210,19 @@ function formulasForRow_(r) {
   const msg =
     'SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(' + cfg('msg_vip') +
     ',"{name}",B' + r + '),"{event}",' + cfg('event_title') +
-    '),"{deadline}",TEXT(' + cfg('rsvp_deadline') + ',"d mmmm yyyy")),"{link}",E' + r + ')';
+    '),"{deadline}",' + ordinalDateFormula_(cfg('rsvp_deadline')) + '),"{link}",E' + r + ')';
   const wa = '=IF(OR(A' + r + '="",D' + r + '=""),"","https://wa.me/"&D' + r + '&"?text="&ENCODEURL(' + msg + '))';
   const reply = '=IF(A' + r + '="","",IFERROR(INDEX(Responses!D:D,MATCH(A' + r + ',Responses!B:B,0)),""))';
   const paxConfirmed = '=IF(A' + r + '="","",IFERROR(INDEX(Responses!E:E,MATCH(A' + r + ',Responses!B:B,0)),""))';
   const responded = '=IF(A' + r + '="","",COUNTIF(Responses!B:B,A' + r + ')>0)';
   const status = '=IF(A' + r + '="","",IF(I' + r + '=TRUE,"Replied: "&G' + r + ',IF(J' + r + '<>"","Opened, no reply","Not opened")))';
   return [link, wa, reply, paxConfirmed, responded, status];
+}
+
+/** Sheets formula for a date cell as "6th November 2026", matching longDate_. */
+function ordinalDateFormula_(cell) {
+  const day = 'DAY(' + cell + ')';
+  return day + '&IF(AND(' + day + '>=11,' + day + '<=13),"th",CHOOSE(MOD(' + day + ',10)+1,"th","st","nd","rd","th","th","th","th","th","th"))&TEXT(' + cell + '," mmmm yyyy")';
 }
 
 function newUniqueId_(used) {
@@ -903,11 +909,17 @@ function validDate_(s) {
   return !isNaN(d.getTime()) && d.toISOString().slice(0, 10) === s;
 }
 
-/** "2026-11-06" -> "6 November 2026" (same as the WhatsApp formula in Guests). */
+/** "2026-11-06" -> "6th November 2026" (same as the WhatsApp formula in Guests). */
 function longDate_(ymd) {
   if (!ymd) return '';
   const p = ymd.split('-');
-  return Number(p[2]) + ' ' + MONTHS[Number(p[1]) - 1] + ' ' + p[0];
+  return ordinal_(Number(p[2])) + ' ' + MONTHS[Number(p[1]) - 1] + ' ' + p[0];
+}
+
+/** 1 -> "1st", 2 -> "2nd", 3 -> "3rd", 11 to 13 -> "th", 21 -> "21st". */
+function ordinal_(n) {
+  if (n % 100 >= 11 && n % 100 <= 13) return n + 'th';
+  return n + (['th', 'st', 'nd', 'rd'][n % 10] || 'th');
 }
 
 /** Writes one Config value, adding the key row if it is missing. */

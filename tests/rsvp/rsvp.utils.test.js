@@ -23,10 +23,12 @@ test('peopleText singular and plural', () => {
 });
 
 test('formatDeadline and leadText', () => {
-  assert.equal(formatDeadline('2026-11-06'), '6 November 2026');
+  assert.equal(formatDeadline('2026-11-06'), '6th November 2026');
+  assert.equal(formatDeadline('2026-11-01'), '1st November 2026');
+  assert.equal(formatDeadline('2026-11-22'), '22nd November 2026');
   assert.equal(formatDeadline(''), '');
   assert.equal(formatDeadline('garbage'), '');
-  assert.match(leadText(true, '2026-11-06'), /able to join us.*Kindly respond by 6 November 2026\.$/);
+  assert.match(leadText(true, '2026-11-06'), /able to join us.*Kindly respond by 6th November 2026\.$/);
   assert.doesNotMatch(leadText(true, ''), /Kindly respond/);
   assert.match(leadText(false, ''), /keep you informed/);
 });
@@ -54,4 +56,11 @@ test('isSafeHttpsUrl accepts only plain https links', () => {
 test('todayInMalaysia uses Malaysia time', () => {
   // 2026-11-02 17:00 UTC is already 3 November in Kuala Lumpur (UTC+8).
   assert.equal(todayInMalaysia(new Date('2026-11-02T17:00:00Z')), '2026-11-03');
+});
+
+test('ordinal and long dates', async () => {
+  const { ordinal, longDate, parseWhen } = await import('../../src/lib/dates.js');
+  assert.deepEqual([1, 2, 3, 4, 11, 12, 13, 21, 22, 23, 24, 30, 31, 101, 111, 112].map(ordinal),
+    ['1st', '2nd', '3rd', '4th', '11th', '12th', '13th', '21st', '22nd', '23rd', '24th', '30th', '31st', '101st', '111th', '112th']);
+  assert.equal(longDate(parseWhen('2026-11-07')), 'Saturday, 7th November 2026');
 });

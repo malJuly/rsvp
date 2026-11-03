@@ -20,7 +20,7 @@ export function peopleText(n) {
   return n === 1 ? STRINGS.personOne : fillTemplate(STRINGS.personMany, { n });
 }
 
-/** "2026-11-06" -> "6 November 2026"; anything else -> "". */
+/** "2026-11-06" -> "6th November 2026"; anything else -> "". */
 export function formatDeadline(ymd) {
   const when = parseWhen(ymd);
   return when ? shortDate(when) : '';

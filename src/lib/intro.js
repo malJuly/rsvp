@@ -25,7 +25,7 @@ const Intro = (function () {
           <div class="film-text film-caption">
             <p class="remember">A gathering in loving remembrance of</p>
             <p class="name">Dr Jayaraman a/l Munusamy</p>
-            <p class="span">22 March 1938 – 30 October 2026</p>
+            <p class="span">22nd March 1938 – 30th October 2026</p>
           </div>
           <button type="button" class="gate-skip" aria-label="Skip the opening">Skip</button>
         </div>`;

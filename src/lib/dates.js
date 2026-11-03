@@ -9,8 +9,14 @@ export function parseWhen(value) {
   return { y, mo, d, h: m[4] ? Number(m[4]) : null, mi: m[5] ? Number(m[5]) : 0, dow: new Date(Date.UTC(y, mo - 1, d)).getUTCDay() };
 }
 
-export const longDate = (p) => `${DAYS[p.dow]}, ${p.d} ${MONTHS[p.mo - 1]} ${p.y}`;
-export const shortDate = (p) => `${p.d} ${MONTHS[p.mo - 1]} ${p.y}`;
+/** 1 -> "1st", 2 -> "2nd", 3 -> "3rd", 11 to 13 -> "th", 21 -> "21st". */
+export function ordinal(n) {
+  if (n % 100 >= 11 && n % 100 <= 13) return `${n}th`;
+  return `${n}${['th', 'st', 'nd', 'rd'][n % 10] || 'th'}`;
+}
+
+export const longDate = (p) => `${DAYS[p.dow]}, ${ordinal(p.d)} ${MONTHS[p.mo - 1]} ${p.y}`;
+export const shortDate = (p) => `${ordinal(p.d)} ${MONTHS[p.mo - 1]} ${p.y}`;
 export const timeOf = (p) => `${((p.h + 11) % 12) + 1}:${String(p.mi).padStart(2, '0')} ${p.h < 12 ? 'AM' : 'PM'}`;
 
 /** The moment to count down to, in Malaysia time. A date with no time counts to the start of that day. */

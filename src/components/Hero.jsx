@@ -23,7 +23,7 @@ export default function Hero() {
       <p className="honouring">Honouring the Life and Legacy of</p>
       <h1>Dr Jayaraman a/l Munusamy</h1>
       <LotusRule />
-      <p className="dates">22 March 1938 – 30 October 2026</p>
+      <p className="dates">22nd March 1938 – 30th October 2026</p>
     </header>
   );
 }
